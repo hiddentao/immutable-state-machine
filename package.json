@@ -1,7 +1,7 @@
 {
   "name": "immutable-state-machine",
   "version": "1.0.0",
-  "description": "Immutable state machine for Javascript with ability to associate extra data with each state.",
+  "description": "Immutable state machine for Javascript with ability to associate extra data with each state. Useful for React.",
   "main": "build/immutableStateMachine.js",
   "scripts": {
     "build": "gulp",

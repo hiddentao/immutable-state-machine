@@ -4,7 +4,7 @@ var chai = require('chai'),
   expect = chai.expect,
   should = chai.should();
 
-var Machine = require('../build/immutableStateMachine');
+var Machine = require('../');
 
 
 

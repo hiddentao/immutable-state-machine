@@ -1,10 +1,10 @@
-# Contribute to Clockmaker
+# Contribute to Immutable-state-machine
 
-This guide guidelines for those wishing to contribute to Squel.
+This guide guidelines for those wishing to contribute to `immutable-state-machine`.
 
 ## Contributor license agreement
 
-By submitting code as an individual or as an entity you agree that your code is [licensed the same as Clockmaker](README.md).
+By submitting code as an individual or as an entity you agree that your code is [licensed the same](README.md).
 
 ## Issues and pull requests
 

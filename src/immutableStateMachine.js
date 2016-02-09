@@ -1,67 +1,92 @@
-let _arrayToObj = function(arr) {
-  let ret = {};
+(function (root, factory) {
+  // AMD
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  }
+  // CommonJS
+  else if (typeof exports === 'object') {
+    module.exports = factory();
+  }
+  // Browser
+  else {
+    let _ism = factory();
 
-  arr.forEach(function(val) {
-    ret[val] = val;
-  });
+    let existing = root.ImmutableStateMachine;
 
-  return ret;
-};
+    _ism.noConflict = function() {
+      root.ImmutableStateMachine = existing;
+      
+      return _ism;
+    };
+
+    root.ImmutableStateMachine = _ism;
+  }
+}(this, function() {
+
+  const _arrayToObj = function(arr) {
+    let ret = {};
+
+    arr.forEach(function(val) {
+      ret[val] = val;
+    });
+
+    return ret;
+  };
 
 
+  const DEFAULT_DATA = null;
 
-/**
- * Construct a state machine.
- *
- * The `stateConfig` array in its simplest form must have atleast two 
- * states, e.g:
- *
- * ```
- * ['start', 'stop']
- * ```
- *
- * You can restrict state transitions using `to` and `from` keys:
- *
- * ```
- * [
- *   {
- *     id: 'step1',
- *     from: [],    // cannot 
- *     to: ['step2'],
- *   },
- *   {
- *     id: 'step2',
- *     from: ['step1'],
- *     to: ['step3'],
- *   },
- *   {
- *     id: 'step3',
- *     from: ['step2'],
- *     to: ['step4'],
- *   },
- *   {
- *     id: 'step4',
- *     from: ['step3'],
- *     to: ['step1'],
- *   },
- * ]
- *
- * By default the first state in the passed-in array is set as the initial 
- * state, unless explicitly specified otherwise:
- * 
- * [
- *   'step1',
- *   {
- *     id: 'step2',
- *     initial: true,   // step2 will thus be the initial state
- *   },
- * ],
- *
- * @param {Array} stateConfig list of states and associated configuration.
- */
-class ImmutableStateMachine {
-  contructor (states) {
-    console.log(234324234234);
+
+  /**
+   * Construct a state machine.
+   *
+   * The `stateConfig` array in its simplest form must have atleast two 
+   * states, e.g:
+   *
+   * ```
+   * ['start', 'stop']
+   * ```
+   *
+   * You can restrict state transitions using `to` and `from` keys:
+   *
+   * ```
+   * [
+   *   {
+   *     id: 'step1',
+   *     from: [],    // cannot 
+   *     to: ['step2'],
+   *   },
+   *   {
+   *     id: 'step2',
+   *     from: ['step1'],
+   *     to: ['step3'],
+   *   },
+   *   {
+   *     id: 'step3',
+   *     from: ['step2'],
+   *     to: ['step4'],
+   *   },
+   *   {
+   *     id: 'step4',
+   *     from: ['step3'],
+   *     to: ['step1'],
+   *   },
+   * ]
+   *
+   * By default the first state in the passed-in array is set as the initial 
+   * state, unless explicitly specified otherwise:
+   * 
+   * [
+   *   'step1',
+   *   {
+   *     id: 'step2',
+   *     initial: true,   // step2 will thus be the initial state
+   *   },
+   * ],
+   *
+   * @param {Array} stateConfig list of states and associated configuration.
+   */
+  var ImmutableStateMachine = function(states) {
     this._setupStates(states);
   }
 
@@ -70,23 +95,23 @@ class ImmutableStateMachine {
    * Get id of active state.
    * @return {String}
    */
-  get state() {
+  ImmutableStateMachine.prototype.getState = function() {
     return this._activeState;
-  }
+  };
 
 
   /**
    * Get extra data associated with current state.
    * @return {Object}
    */
-  get data() {
+  ImmutableStateMachine.prototype.getData = function() {
     return this._states[this._activeState].data;
-  }
+  };
 
 
 
   /**
-   * Change state.
+   * Goto a state.
    *
    * This will return a new instance of the state machine if necessary. Note 
    * that if the the new state is the same as the current one but the `data` 
@@ -96,7 +121,7 @@ class ImmutableStateMachine {
    * @param  {Object} [data] Extra data to associate with new state.
    * @return {ImmutableStateMachine}
    */
-  change(newStateId, data = null) {
+  ImmutableStateMachine.prototype.goto = function(newStateId, data = DEFAULT_DATA) {
     if (newStateId === this._activeState) {
       if (this._states[this._activeState].data !== data) {
         return this._new(newStateId, data);
@@ -113,10 +138,10 @@ class ImmutableStateMachine {
         newConfig = this._states[newStateId];
 
       // check that transition is permissible
-      if ( (activeConfig.to && !activeConfig[newStateId]) 
-            || (newConfig.from && !newConfig[this._activeState]) 
+      if ( (activeConfig.to && !activeConfig.to[newStateId]) 
+            || (newConfig.from && !newConfig.from[this._activeState]) 
           ) {
-        throw new Error(`Cannot change state from ${this._activeState} to ${newStateId}`);
+        throw new Error(`Disallowed transition: ${this._activeState} -> ${newStateId}`);
       }
 
       // do it!
@@ -130,8 +155,8 @@ class ImmutableStateMachine {
    * 
    * @param  {Array} states State configuration.
    */
-  _setupStates (states) {
-    if (!states || !states.length || 2 > states.length) {
+  ImmutableStateMachine.prototype._setupStates = function(states) {
+    if (!(states instanceof Array) || 2 > states.length) {
       throw new Error('Atleast 2 states required');
     }
 
@@ -141,17 +166,19 @@ class ImmutableStateMachine {
       let stateId = state.id || state;
 
       if (this._states[stateId]) {
-        throw new Error(`State already defined: ${state}`);
+        throw new Error(`State already defined: ${stateId}`);
       }
 
-      this._states[stateId] = {};
+      this._states[stateId] = {
+        data: DEFAULT_DATA,
+      };
 
       if (state.from) {
-        this._states[stateId] = _arrayToObj(state.from);
+        this._states[stateId].from = _arrayToObj(state.from);
       }
 
       if (state.to) {
-        this._states[stateId] = _arrayToObj(state.to);
+        this._states[stateId].to = _arrayToObj(state.to);
       }
 
       // set initial state
@@ -168,37 +195,15 @@ class ImmutableStateMachine {
    * @param  {Object} [data] Extra data to associate with new state.
    * @return {ImmutableStateMachine}
    */
-  _new (stateId, data) {
+  ImmutableStateMachine.prototype._new = function(stateId, data) {
     let inst = Object.create(ImmutableStateMachine.prototype);
 
-    inst._states = this._states;
+    inst._states = JSON.parse(JSON.stringify(this._states));
     inst._activeState = stateId;
-    inst._states[stateId].data = data;
+    inst._states[inst._activeState].data = data;
 
     return inst;
   }
-}
 
-
-
-// // AMD
-// if (typeof define === 'function' && define.amd) {
-//   define([], ImmutableStateMachine);
-// }
-// // CommonJS
-// else if (typeof exports === 'object') {
-  module.exports = ImmutableStateMachine;
-// }
-// // Browser
-// else if (typeof window === 'object') {
-//   let existing = window.ImmutableStateMachine;
-
-//   ImmutableStateMachine.noConflict = function() {
-//     window.ImmutableStateMachine = ImmutableStateMachine;
-    
-//     return ImmutableStateMachine;
-//   };
-
-//   window.ImmutableStateMachine = ImmutableStateMachine;
-// }
-
+  return ImmutableStateMachine;
+}));

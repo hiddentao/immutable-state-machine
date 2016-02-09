@@ -1,0 +1,21 @@
+language: node_js
+
+branches:
+  only:
+    - master
+
+node_js:
+  - "0.12"
+  - "4"
+  - "5"
+
+before_script:
+  - "npm install -g gulp"
+  - "npm install"
+
+script:
+  - "npm run build"
+
+notifications:
+  email:
+    - ram@hiddentao.com

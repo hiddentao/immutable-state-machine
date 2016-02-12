@@ -180,7 +180,7 @@ m.goto('step4');
 
 The above machine allows us transition from `step1` through to `step4` and 
 then nothing else. Note that although we have specified that `step4` may 
-transition _to_ `step1`, we specified an empty _from_ array for `step1 thus 
+transition _to_ `step1`, we specified an empty _from_ array for `step1` thus 
 specifying that it is not possible to transition to `step1` from another step.
 
 

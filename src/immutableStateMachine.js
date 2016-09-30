@@ -86,8 +86,10 @@
    *
    * @param {Array} stateConfig list of states and associated configuration.
    */
-  var ImmutableStateMachine = function(states) {
+  var ImmutableStateMachine = function(states, options) {
     this._setupStates(states);
+    
+    options = options || {};
   }
 
 
@@ -196,7 +198,7 @@
    * @return {ImmutableStateMachine}
    */
   ImmutableStateMachine.prototype._new = function(stateId, data) {
-    let inst = Object.create(ImmutableStateMachine.prototype);
+    let inst = Object.create(this.constructor.prototype);
 
     inst._states = JSON.parse(JSON.stringify(this._states));
     inst._activeState = stateId;

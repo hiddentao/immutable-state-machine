@@ -165,3 +165,14 @@ test['goto state'] = {
 
 
 
+test['sub class'] = function() {
+  class Dummy extends Machine {}
+
+  var m = new Dummy(['start', 'stop']);
+  
+  let m2 = m.goto('stop');
+  
+  m2.should.be.instanceof(Dummy);
+
+  m2.goto('start');
+};

@@ -184,6 +184,21 @@ transition _to_ `step1`, we specified an empty _from_ array for `step1 thus
 specifying that it is not possible to transition to `step1` from another step.
 
 
+### Seamless sub-classing
+
+If you inherit from `Machine` then all methods will return new instances of 
+your subclass rather than the base class.
+
+```js
+class MyMachine extends Dummy {}
+  
+var m = new MyMachine(['start', 'stop']);
+
+var m2 = m.goto('stop');
+
+console.log( m2 instanceof MyMachine ); /* true */
+```
+
 ## Building
 
 To build the code and run the tests:
